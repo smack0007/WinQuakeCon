@@ -87,11 +87,7 @@ namespace WinQuakeCon
 		public const int MOD_WIN = 0x8;
 		
 		public const int WM_HOTKEY = 0x312;
-
-		[DllImport("user32.dll")]
-		[return: MarshalAs(UnmanagedType.Bool)]
-		public static extern bool AttachThreadInput(uint idAttach, uint idAttachTo, bool fAttach);
-		
+						
 		[DllImport("user32.dll")]
 		public static extern IntPtr GetForegroundWindow();
 			

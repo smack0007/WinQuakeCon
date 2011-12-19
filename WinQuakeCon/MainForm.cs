@@ -30,6 +30,7 @@ namespace WinQuakeCon
 			this.FormBorderStyle = FormBorderStyle.FixedToolWindow;
 			this.ShowInTaskbar = false;
 			this.WindowState = FormWindowState.Minimized;
+			this.Visible = false;
 
 			this.trayIcon = new NotifyIcon();
 			this.trayIcon.Icon = WinQuakeCon.Properties.Resources.Icon;
@@ -42,17 +43,13 @@ namespace WinQuakeCon
 			this.trayIcon.ContextMenu = menu;
 		}
 
-		protected override void OnLoad(EventArgs e)
+		public void Initialize()
 		{
-			base.OnLoad(e);
-
 			Win32.RegisterHotKey(this.Handle, 0, Win32.MOD_ALT, (uint)Keys.Space);
 		}
-
-		protected override void OnClosed(EventArgs e)
+		
+		public void Shutdown()
 		{
-			base.OnClosed(e);
-
 			Win32.UnregisterHotKey(this.Handle, 0);
 
 			if(this.consoleProcess != null && !this.consoleProcess.HasExited)
@@ -66,7 +63,7 @@ namespace WinQuakeCon
 
 		private void TrayIcon_Exit(object sender, EventArgs e)
 		{
-			this.Close();
+			Application.Exit();
 		}
 
 		private void StartConsoleProcess()
@@ -82,8 +79,6 @@ namespace WinQuakeCon
 
 			while(this.consoleProcess.MainWindowHandle == IntPtr.Zero)
 				Thread.Sleep(100);
-
-			Win32.AttachThreadInput((uint)this.consoleProcess.Id, (uint)Thread.CurrentThread.ManagedThreadId, true);
 						
 			uint style = (uint)Win32.GetWindowLong(this.consoleProcess.MainWindowHandle, Win32.GWL_STYLE);
 			style &= ~(Win32.WS_VISIBLE);
@@ -123,6 +118,8 @@ namespace WinQuakeCon
 
 			if (direction > 0)
 			{
+				Win32.ShowWindow(this.consoleProcess.MainWindowHandle, Win32.SW_SHOW);
+
 				while (rect.Y < 0)
 				{
 					rect.Y += 50;
@@ -145,6 +142,7 @@ namespace WinQuakeCon
 				}
 
 				Win32.SetWindowPos(this.consoleProcess.MainWindowHandle, Win32.HWND_TOPMOST, 0, -this.consoleHeight - 1, this.consoleWidth, this.consoleHeight, Win32.SWP_SHOWWINDOW);
+				Win32.ShowWindow(this.consoleProcess.MainWindowHandle, Win32.SW_HIDE);
 			}
 		}
 
@@ -159,6 +157,7 @@ namespace WinQuakeCon
 					ThreadPool.QueueUserWorkItem(this.AnimateConsoleProc, 1);
 				else
 				{
+					Win32.ShowWindow(this.consoleProcess.MainWindowHandle, Win32.SW_SHOW);
 					Win32.SetWindowPos(this.consoleProcess.MainWindowHandle, Win32.HWND_TOPMOST, 0, 0, this.consoleWidth, this.consoleHeight, Win32.SWP_SHOWWINDOW);
 					Win32.SetForegroundWindow(this.consoleProcess.MainWindowHandle);
 				}
@@ -170,6 +169,7 @@ namespace WinQuakeCon
 				else
 				{
 					Win32.SetWindowPos(this.consoleProcess.MainWindowHandle, Win32.HWND_BOTTOM, 0, -this.consoleHeight - 1, this.consoleWidth, this.consoleHeight, Win32.SWP_SHOWWINDOW);
+					Win32.ShowWindow(this.consoleProcess.MainWindowHandle, Win32.SW_HIDE);
 				}
 			}
 		}

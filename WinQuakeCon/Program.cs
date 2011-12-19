@@ -18,7 +18,12 @@ namespace WinQuakeCon
 
 			Application.EnableVisualStyles();
 			Application.SetCompatibleTextRenderingDefault(false);
-			Application.Run(new MainForm(config));
+
+			MainForm mainForm = new MainForm(config);
+			mainForm.CreateControl();
+			mainForm.Initialize();
+			Application.Run();
+			mainForm.Shutdown();
 		}
 	}
 }
