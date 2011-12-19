@@ -15,7 +15,6 @@ namespace WinQuakeCon
 		Process consoleProcess;
 		int consoleWidth;
 		int consoleHeight;
-		bool consoleIsVisible;
 
 		public MainForm(Config config)
 		{
@@ -97,7 +96,15 @@ namespace WinQuakeCon
 			this.consoleHeight = Screen.PrimaryScreen.WorkingArea.Height / 2;
 
 			Win32.SetWindowPos(this.consoleProcess.MainWindowHandle, IntPtr.Zero, 0, -this.consoleHeight - 1, this.consoleWidth, this.consoleHeight, Win32.SWP_SHOWWINDOW);
-			this.consoleIsVisible = false;
+		}
+
+		private bool IsConsoleVisible()
+		{
+			Win32.RECT win32Rect = new Win32.RECT();
+			Win32.GetWindowRect(this.consoleProcess.MainWindowHandle, out win32Rect);
+			Rectangle windowRect = new Rectangle(win32Rect.Left, win32Rect.Top, win32Rect.Right - win32Rect.Top, win32Rect.Bottom - win32Rect.Top);
+
+			return Screen.PrimaryScreen.WorkingArea.Contains(windowRect);
 		}
 
 		private void ToggleConsole()
@@ -105,16 +112,16 @@ namespace WinQuakeCon
 			if(this.consoleProcess == null || this.consoleProcess.HasExited)
 				this.StartConsoleProcess();
 
-			if(!this.consoleIsVisible)
+			uint flags = Win32.SWP_SHOWWINDOW;
+
+			if(!this.IsConsoleVisible())
 			{
-				Win32.SetWindowPos(this.consoleProcess.MainWindowHandle, IntPtr.Zero, 0, 0, this.consoleWidth, this.consoleHeight, Win32.SWP_SHOWWINDOW);
+				Win32.SetWindowPos(this.consoleProcess.MainWindowHandle, Win32.HWND_TOPMOST, 0, 0, this.consoleWidth, this.consoleHeight, flags);
 			}
 			else
 			{
-				Win32.SetWindowPos(this.consoleProcess.MainWindowHandle, IntPtr.Zero, 0, -this.consoleHeight - 1, this.consoleWidth, this.consoleHeight, Win32.SWP_SHOWWINDOW);
+				Win32.SetWindowPos(this.consoleProcess.MainWindowHandle, Win32.HWND_BOTTOM, 0, -this.consoleHeight - 1, this.consoleWidth, this.consoleHeight, flags);
 			}
-
-			this.consoleIsVisible = !this.consoleIsVisible;
 		}
 
 		protected override void WndProc(ref Message m)

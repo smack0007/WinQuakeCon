@@ -17,6 +17,9 @@ namespace WinQuakeCon
 		public const int GWL_STYLE = -16;
 		public const int GWL_EXSTYLE = -20;
 
+		public static IntPtr HWND_TOPMOST = (IntPtr)(-1);
+		public static IntPtr HWND_BOTTOM = (IntPtr)1;
+
 		// Window Styles 
 		public const uint WS_OVERLAPPED = 0;
 		public const uint WS_POPUP = 0x80000000;
@@ -84,16 +87,20 @@ namespace WinQuakeCon
 		public const int MOD_WIN = 0x8;
 		
 		public const int WM_HOTKEY = 0x312;
-					
-		[DllImport("user32.dll")]
-		public static extern int SetWindowLong(IntPtr hWnd, int nIndex, int dwNewLong);
 
+		[DllImport("user32.dll")]
+		public static extern IntPtr GetForegroundWindow();
+			
 		[DllImport("user32.dll")]
 		public static extern int GetWindowLong(IntPtr hWnd, int nIndex);
 
 		[DllImport("user32.dll")]
 		[return: MarshalAs(UnmanagedType.Bool)]
 		public static extern bool GetWindowRect(IntPtr hWnd, out RECT lpRect);
+
+		[DllImport("user32.dll")]
+		[return: MarshalAs(UnmanagedType.Bool)]
+		public static extern bool RegisterHotKey(IntPtr hWnd, int id, uint fsModifiers, uint vk);
 
 		[DllImport("user32.dll")]
 		[return: MarshalAs(UnmanagedType.Bool)]
@@ -104,11 +111,12 @@ namespace WinQuakeCon
 		public static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
 
 		[DllImport("user32.dll")]
-		[return: MarshalAs(UnmanagedType.Bool)]
-		public static extern bool RegisterHotKey(IntPtr hWnd, int id, uint fsModifiers, uint vk);
-
+		public static extern int SetWindowLong(IntPtr hWnd, int nIndex, int dwNewLong);
+				
 		[DllImport("user32.dll")]
 		[return: MarshalAs(UnmanagedType.Bool)]
 		public static extern bool UnregisterHotKey(IntPtr hWnd, int id);
+
+		
 	}
 }
