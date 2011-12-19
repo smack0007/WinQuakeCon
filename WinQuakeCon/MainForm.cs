@@ -15,9 +15,7 @@ namespace WinQuakeCon
 		NotifyIcon trayIcon;
 
 		Process consoleProcess;
-		int consoleWidth;
-		int consoleHeight;
-
+		
 		IntPtr oldForeground;
 
 		public MainForm(Config config)
@@ -43,6 +41,7 @@ namespace WinQuakeCon
 			menu.MenuItems.Add("Exit", this.TrayIcon_Exit);
 
 			this.trayIcon.ContextMenu = menu;
+			this.trayIcon.DoubleClick += this.TrayIcon_ToggleConsole;
 		}
 
 		public void Initialize()
@@ -91,7 +90,6 @@ namespace WinQuakeCon
 			};
 
 			this.consoleProcess = Process.Start(startInfo);
-			this.consoleProcess.Exited += (s, e) => { this.consoleProcess = null; };
 
 			while(this.consoleProcess.MainWindowHandle == IntPtr.Zero)
 				Thread.Sleep(100);
@@ -107,10 +105,7 @@ namespace WinQuakeCon
 			Win32.SetWindowLong(this.consoleProcess.MainWindowHandle, Win32.GWL_STYLE, (int)style);
 			Win32.SetWindowLong(this.consoleProcess.MainWindowHandle, Win32.GWL_EXSTYLE, (int)exStyle);
 			
-			this.consoleWidth = Screen.PrimaryScreen.WorkingArea.Width;
-			this.consoleHeight = Screen.PrimaryScreen.WorkingArea.Height / 2;
-
-			Win32.SetWindowPos(this.consoleProcess.MainWindowHandle, IntPtr.Zero, 0, -this.consoleHeight - 1, this.consoleWidth, this.consoleHeight, Win32.SWP_HIDEWINDOW);
+			Win32.SetWindowPos(this.consoleProcess.MainWindowHandle, IntPtr.Zero, this.config.ConsoleHiddenX, this.config.ConsoleHiddenY, this.config.ConsoleWidth, this.config.ConsoleHeight, Win32.SWP_HIDEWINDOW);
 		}
 
 		private Rectangle GetConsoleRectangle()
@@ -135,23 +130,39 @@ namespace WinQuakeCon
 			{
 				Win32.ShowWindow(this.consoleProcess.MainWindowHandle, Win32.SW_SHOW);
 
-				while (rect.Y < 0)
+				while (rect.X < this.config.ConsoleVisibleX || rect.Y < this.config.ConsoleVisibleY)
 				{
-					rect.Y += 50;
-					Win32.SetWindowPos(this.consoleProcess.MainWindowHandle, Win32.HWND_TOPMOST, 0, rect.Y, this.consoleWidth, this.consoleHeight, Win32.SWP_SHOWWINDOW);
+					rect.X += this.config.AnimateSpeedX;
+					rect.Y += this.config.AnimateSpeedY;
+
+					if (rect.X > this.config.ConsoleVisibleX)
+						rect.X = this.config.ConsoleVisibleX;
+
+					if (rect.Y > this.config.ConsoleVisibleY)
+						rect.Y = this.config.ConsoleVisibleY;
+
+					Win32.SetWindowPos(this.consoleProcess.MainWindowHandle, IntPtr.Zero, rect.X, rect.Y, this.config.ConsoleWidth, this.config.ConsoleHeight, Win32.SWP_SHOWWINDOW);
 
 					Thread.Sleep(10);
 				}
 
-				Win32.SetWindowPos(this.consoleProcess.MainWindowHandle, Win32.HWND_TOPMOST, 0, 0, this.consoleWidth, this.consoleHeight, Win32.SWP_SHOWWINDOW);
+				Win32.SetWindowPos(this.consoleProcess.MainWindowHandle, IntPtr.Zero, this.config.ConsoleVisibleX, this.config.ConsoleVisibleY, this.config.ConsoleWidth, this.config.ConsoleHeight, Win32.SWP_SHOWWINDOW);
 				Win32.SetForegroundWindow(this.consoleProcess.MainWindowHandle);
 			}
 			else
 			{
-				while (rect.Bottom > 0)
+				while (rect.X > this.config.ConsoleHiddenX || rect.Y > this.config.ConsoleHiddenY)
 				{
-					rect.Y -= 50;
-					Win32.SetWindowPos(this.consoleProcess.MainWindowHandle, Win32.HWND_TOPMOST, 0, rect.Y, this.consoleWidth, this.consoleHeight, Win32.SWP_SHOWWINDOW);
+					rect.X -= this.config.AnimateSpeedX;
+					rect.Y -= this.config.AnimateSpeedY;
+
+					if (rect.X < this.config.ConsoleHiddenX)
+						rect.X = this.config.ConsoleHiddenX;
+
+					if (rect.Y < this.config.ConsoleHiddenY)
+						rect.Y = this.config.ConsoleHiddenY;
+
+					Win32.SetWindowPos(this.consoleProcess.MainWindowHandle, IntPtr.Zero, rect.X, rect.Y, this.config.ConsoleWidth, this.config.ConsoleHeight, Win32.SWP_SHOWWINDOW);
 
 					Thread.Sleep(10);
 				}
@@ -175,7 +186,7 @@ namespace WinQuakeCon
 				else
 				{
 					Win32.ShowWindow(this.consoleProcess.MainWindowHandle, Win32.SW_SHOW);
-					Win32.SetWindowPos(this.consoleProcess.MainWindowHandle, Win32.HWND_TOPMOST, 0, 0, this.consoleWidth, this.consoleHeight, Win32.SWP_SHOWWINDOW);
+					Win32.SetWindowPos(this.consoleProcess.MainWindowHandle, IntPtr.Zero, this.config.ConsoleVisibleX, this.config.ConsoleVisibleY, this.config.ConsoleWidth, this.config.ConsoleHeight, Win32.SWP_SHOWWINDOW);
 					Win32.SetForegroundWindow(this.consoleProcess.MainWindowHandle);
 				}
 			}
