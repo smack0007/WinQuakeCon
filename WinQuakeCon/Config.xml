@@ -1,4 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <WinQuakeConConfig>
   <Console>cmd.exe</Console>
+	<WorkingDirectory>C:\</WorkingDirectory>
+	<Animate>true</Animate>
 </WinQuakeConConfig>

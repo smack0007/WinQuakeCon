@@ -89,6 +89,10 @@ namespace WinQuakeCon
 		public const int WM_HOTKEY = 0x312;
 
 		[DllImport("user32.dll")]
+		[return: MarshalAs(UnmanagedType.Bool)]
+		public static extern bool AttachThreadInput(uint idAttach, uint idAttachTo, bool fAttach);
+		
+		[DllImport("user32.dll")]
 		public static extern IntPtr GetForegroundWindow();
 			
 		[DllImport("user32.dll")]
@@ -101,6 +105,9 @@ namespace WinQuakeCon
 		[DllImport("user32.dll")]
 		[return: MarshalAs(UnmanagedType.Bool)]
 		public static extern bool RegisterHotKey(IntPtr hWnd, int id, uint fsModifiers, uint vk);
+
+		[DllImport("user32.dll")]
+		public static extern IntPtr SetForegroundWindow(IntPtr hwnd);
 
 		[DllImport("user32.dll")]
 		[return: MarshalAs(UnmanagedType.Bool)]
@@ -116,7 +123,5 @@ namespace WinQuakeCon
 		[DllImport("user32.dll")]
 		[return: MarshalAs(UnmanagedType.Bool)]
 		public static extern bool UnregisterHotKey(IntPtr hWnd, int id);
-
-		
 	}
 }

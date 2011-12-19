@@ -13,6 +13,18 @@ namespace WinQuakeCon
 			set;
 		}
 
+		public string WorkingDirectory
+		{
+			get;
+			set;
+		}
+
+		public bool Animate
+		{
+			get;
+			set;
+		}
+
 		public Config()
 		{
 		}
@@ -21,8 +33,12 @@ namespace WinQuakeCon
 		{
 			Config config = new Config();
 
+			// TODO: Validate config file.
+
 			XDocument document = XDocument.Load(fileName);
 			config.Console = document.Root.Element("Console").Value;
+			config.WorkingDirectory = document.Root.Element("WorkingDirectory").Value;
+			config.Animate = document.Root.Element("Animate").Value.ToUpper() == "TRUE" ? true : false;
 
 			return config;
 		}

@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Drawing;
 using System.Diagnostics;
-using System.Windows.Forms;
 using System.Threading;
+using System.Windows.Forms;
+
+using Timer = System.Threading.Timer;
 
 namespace WinQuakeCon
 {
@@ -72,6 +74,7 @@ namespace WinQuakeCon
 			ProcessStartInfo startInfo = new ProcessStartInfo()
 			{
 				FileName = this.config.Console,
+				WorkingDirectory = this.config.WorkingDirectory
 			};
 
 			this.consoleProcess = Process.Start(startInfo);
@@ -79,6 +82,8 @@ namespace WinQuakeCon
 
 			while(this.consoleProcess.MainWindowHandle == IntPtr.Zero)
 				Thread.Sleep(100);
+
+			Win32.AttachThreadInput((uint)this.consoleProcess.Id, (uint)Thread.CurrentThread.ManagedThreadId, true);
 						
 			uint style = (uint)Win32.GetWindowLong(this.consoleProcess.MainWindowHandle, Win32.GWL_STYLE);
 			style &= ~(Win32.WS_VISIBLE);
@@ -98,29 +103,74 @@ namespace WinQuakeCon
 			Win32.SetWindowPos(this.consoleProcess.MainWindowHandle, IntPtr.Zero, 0, -this.consoleHeight - 1, this.consoleWidth, this.consoleHeight, Win32.SWP_SHOWWINDOW);
 		}
 
+		private Rectangle GetConsoleRectangle()
+		{
+			Win32.RECT rect = new Win32.RECT();
+			Win32.GetWindowRect(this.consoleProcess.MainWindowHandle, out rect);
+			return new Rectangle(rect.Left, rect.Top, rect.Right - rect.Top, rect.Bottom - rect.Top);
+		}
+
 		private bool IsConsoleVisible()
 		{
-			Win32.RECT win32Rect = new Win32.RECT();
-			Win32.GetWindowRect(this.consoleProcess.MainWindowHandle, out win32Rect);
-			Rectangle windowRect = new Rectangle(win32Rect.Left, win32Rect.Top, win32Rect.Right - win32Rect.Top, win32Rect.Bottom - win32Rect.Top);
+			return Screen.PrimaryScreen.WorkingArea.Contains(this.GetConsoleRectangle());
+		}
 
-			return Screen.PrimaryScreen.WorkingArea.Contains(windowRect);
+		private void AnimateConsoleProc(object state)
+		{
+			int direction = (int)state;
+
+			Rectangle rect = this.GetConsoleRectangle();
+
+			if (direction > 0)
+			{
+				while (rect.Y < 0)
+				{
+					rect.Y += 50;
+					Win32.SetWindowPos(this.consoleProcess.MainWindowHandle, Win32.HWND_TOPMOST, 0, rect.Y, this.consoleWidth, this.consoleHeight, Win32.SWP_SHOWWINDOW);
+
+					Thread.Sleep(10);
+				}
+
+				Win32.SetWindowPos(this.consoleProcess.MainWindowHandle, Win32.HWND_TOPMOST, 0, 0, this.consoleWidth, this.consoleHeight, Win32.SWP_SHOWWINDOW);
+				Win32.SetForegroundWindow(this.consoleProcess.MainWindowHandle);
+			}
+			else
+			{
+				while (rect.Bottom > 0)
+				{
+					rect.Y -= 50;
+					Win32.SetWindowPos(this.consoleProcess.MainWindowHandle, Win32.HWND_TOPMOST, 0, rect.Y, this.consoleWidth, this.consoleHeight, Win32.SWP_SHOWWINDOW);
+
+					Thread.Sleep(10);
+				}
+
+				Win32.SetWindowPos(this.consoleProcess.MainWindowHandle, Win32.HWND_TOPMOST, 0, -this.consoleHeight - 1, this.consoleWidth, this.consoleHeight, Win32.SWP_SHOWWINDOW);
+			}
 		}
 
 		private void ToggleConsole()
 		{
 			if(this.consoleProcess == null || this.consoleProcess.HasExited)
 				this.StartConsoleProcess();
-
-			uint flags = Win32.SWP_SHOWWINDOW;
-
+									
 			if(!this.IsConsoleVisible())
 			{
-				Win32.SetWindowPos(this.consoleProcess.MainWindowHandle, Win32.HWND_TOPMOST, 0, 0, this.consoleWidth, this.consoleHeight, flags);
+				if (this.config.Animate)
+					ThreadPool.QueueUserWorkItem(this.AnimateConsoleProc, 1);
+				else
+				{
+					Win32.SetWindowPos(this.consoleProcess.MainWindowHandle, Win32.HWND_TOPMOST, 0, 0, this.consoleWidth, this.consoleHeight, Win32.SWP_SHOWWINDOW);
+					Win32.SetForegroundWindow(this.consoleProcess.MainWindowHandle);
+				}
 			}
 			else
 			{
-				Win32.SetWindowPos(this.consoleProcess.MainWindowHandle, Win32.HWND_BOTTOM, 0, -this.consoleHeight - 1, this.consoleWidth, this.consoleHeight, flags);
+				if (this.config.Animate)
+					ThreadPool.QueueUserWorkItem(this.AnimateConsoleProc, -1);
+				else
+				{
+					Win32.SetWindowPos(this.consoleProcess.MainWindowHandle, Win32.HWND_BOTTOM, 0, -this.consoleHeight - 1, this.consoleWidth, this.consoleHeight, Win32.SWP_SHOWWINDOW);
+				}
 			}
 		}
 
