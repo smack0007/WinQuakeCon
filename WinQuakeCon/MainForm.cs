@@ -18,6 +18,8 @@ namespace WinQuakeCon
 		int consoleWidth;
 		int consoleHeight;
 
+		IntPtr oldForeground;
+
 		public MainForm(Config config)
 		{
 			if (config == null)
@@ -45,7 +47,7 @@ namespace WinQuakeCon
 
 		public void Initialize()
 		{
-			Win32.RegisterHotKey(this.Handle, 0, Win32.MOD_ALT, (uint)Keys.Space);
+			Win32.RegisterHotKey(this.Handle, 0, 0, (uint)this.config.HotKeyCode);
 		}
 		
 		public void Shutdown()
@@ -90,12 +92,11 @@ namespace WinQuakeCon
 			Win32.ShowWindow(this.consoleProcess.MainWindowHandle, Win32.SW_HIDE);
 			Win32.SetWindowLong(this.consoleProcess.MainWindowHandle, Win32.GWL_STYLE, (int)style);
 			Win32.SetWindowLong(this.consoleProcess.MainWindowHandle, Win32.GWL_EXSTYLE, (int)exStyle);
-			Win32.ShowWindow(this.consoleProcess.MainWindowHandle, Win32.SW_SHOW);
-
+			
 			this.consoleWidth = Screen.PrimaryScreen.WorkingArea.Width;
 			this.consoleHeight = Screen.PrimaryScreen.WorkingArea.Height / 2;
 
-			Win32.SetWindowPos(this.consoleProcess.MainWindowHandle, IntPtr.Zero, 0, -this.consoleHeight - 1, this.consoleWidth, this.consoleHeight, Win32.SWP_SHOWWINDOW);
+			Win32.SetWindowPos(this.consoleProcess.MainWindowHandle, IntPtr.Zero, 0, -this.consoleHeight - 1, this.consoleWidth, this.consoleHeight, Win32.SWP_HIDEWINDOW);
 		}
 
 		private Rectangle GetConsoleRectangle()
@@ -107,7 +108,7 @@ namespace WinQuakeCon
 
 		private bool IsConsoleVisible()
 		{
-			return Screen.PrimaryScreen.WorkingArea.Contains(this.GetConsoleRectangle());
+			return Win32.IsWindowVisible(this.consoleProcess.MainWindowHandle);
 		}
 
 		private void AnimateConsoleProc(object state)
@@ -141,8 +142,8 @@ namespace WinQuakeCon
 					Thread.Sleep(10);
 				}
 
-				Win32.SetWindowPos(this.consoleProcess.MainWindowHandle, Win32.HWND_TOPMOST, 0, -this.consoleHeight - 1, this.consoleWidth, this.consoleHeight, Win32.SWP_SHOWWINDOW);
 				Win32.ShowWindow(this.consoleProcess.MainWindowHandle, Win32.SW_HIDE);
+				Win32.SetForegroundWindow(this.oldForeground);
 			}
 		}
 
@@ -150,9 +151,11 @@ namespace WinQuakeCon
 		{
 			if(this.consoleProcess == null || this.consoleProcess.HasExited)
 				this.StartConsoleProcess();
-									
+												
 			if(!this.IsConsoleVisible())
 			{
+				this.oldForeground = Win32.GetForegroundWindow();
+
 				if (this.config.Animate)
 					ThreadPool.QueueUserWorkItem(this.AnimateConsoleProc, 1);
 				else
@@ -168,8 +171,8 @@ namespace WinQuakeCon
 					ThreadPool.QueueUserWorkItem(this.AnimateConsoleProc, -1);
 				else
 				{
-					Win32.SetWindowPos(this.consoleProcess.MainWindowHandle, Win32.HWND_BOTTOM, 0, -this.consoleHeight - 1, this.consoleWidth, this.consoleHeight, Win32.SWP_SHOWWINDOW);
 					Win32.ShowWindow(this.consoleProcess.MainWindowHandle, Win32.SW_HIDE);
+					Win32.SetForegroundWindow(this.oldForeground);
 				}
 			}
 		}

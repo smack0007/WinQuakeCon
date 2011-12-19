@@ -74,6 +74,7 @@ namespace WinQuakeCon
 		public const uint WS_EX_NOACTIVATE = 0x08000000;
 
 		public const uint SWP_FRAMECHANGED = 0x0020;
+		public const uint SWP_HIDEWINDOW = 0x0080;
 		public const uint SWP_NOMOVE = 0x0002;
 		public const uint SWP_NOSIZE = 0x0001;
 		public const uint SWP_SHOWWINDOW = 0x0040;
@@ -100,10 +101,15 @@ namespace WinQuakeCon
 
 		[DllImport("user32.dll")]
 		[return: MarshalAs(UnmanagedType.Bool)]
+		public static extern bool IsWindowVisible(IntPtr hWnd);
+
+		[DllImport("user32.dll")]
+		[return: MarshalAs(UnmanagedType.Bool)]
 		public static extern bool RegisterHotKey(IntPtr hWnd, int id, uint fsModifiers, uint vk);
 
 		[DllImport("user32.dll")]
-		public static extern IntPtr SetForegroundWindow(IntPtr hwnd);
+		[return: MarshalAs(UnmanagedType.Bool)]
+		public static extern bool SetForegroundWindow(IntPtr hwnd);
 
 		[DllImport("user32.dll")]
 		[return: MarshalAs(UnmanagedType.Bool)]

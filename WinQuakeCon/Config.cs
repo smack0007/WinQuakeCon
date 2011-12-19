@@ -7,6 +7,12 @@ namespace WinQuakeCon
 {
 	public class Config
 	{
+		public int HotKeyCode
+		{
+			get;
+			set;
+		}
+
 		public string Console
 		{
 			get;
@@ -36,6 +42,7 @@ namespace WinQuakeCon
 			// TODO: Validate config file.
 
 			XDocument document = XDocument.Load(fileName);
+			config.HotKeyCode = int.Parse(document.Root.Element("HotKeyCode").Value);
 			config.Console = document.Root.Element("Console").Value;
 			config.WorkingDirectory = document.Root.Element("WorkingDirectory").Value;
 			config.Animate = document.Root.Element("Animate").Value.ToUpper() == "TRUE" ? true : false;
