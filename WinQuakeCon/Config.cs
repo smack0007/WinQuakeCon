@@ -43,6 +43,12 @@ namespace WinQuakeCon
 			set;
 		}
 
+		public bool ConsoleRemoveBorder
+		{
+			get;
+			set;
+		}
+
 		public int ConsoleWidth
 		{
 			get;
@@ -120,6 +126,7 @@ namespace WinQuakeCon
 			config.HotKeyShift = document.Root.Element("HotKeyShift").Value.ToUpper() == "TRUE" ? true : false;
 			config.HotKeyWin = document.Root.Element("HotKeyWin").Value.ToUpper() == "TRUE" ? true : false;
 			config.Console = document.Root.Element("Console").Value;
+			config.ConsoleRemoveBorder = document.Root.Element("ConsoleRemoveBorder").Value.ToUpper() == "TRUE" ? true : false;
 			config.ConsoleWidth = int.Parse(document.Root.Element("ConsoleWidth").Value);
 			config.ConsoleHeight = int.Parse(document.Root.Element("ConsoleHeight").Value);
 			config.ConsoleHiddenX = int.Parse(document.Root.Element("ConsoleHiddenX").Value);

@@ -6,6 +6,7 @@
 	<HotKeyShift>false</HotKeyShift>
 	<HotKeyWin>true</HotKeyWin>
 	<Console>cmd.exe</Console>
+	<ConsoleRemoveBorder>false</ConsoleRemoveBorder>
 	<ConsoleWidth>1024</ConsoleWidth>
 	<ConsoleHeight>384</ConsoleHeight>
 	<ConsoleHiddenX>0</ConsoleHiddenX>

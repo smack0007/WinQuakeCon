@@ -86,7 +86,7 @@ namespace WinQuakeCon
 			ProcessStartInfo startInfo = new ProcessStartInfo()
 			{
 				FileName = this.config.Console,
-				WorkingDirectory = this.config.WorkingDirectory
+				WorkingDirectory = this.config.WorkingDirectory			
 			};
 
 			this.consoleProcess = Process.Start(startInfo);
@@ -100,6 +100,12 @@ namespace WinQuakeCon
 			uint exStyle = (uint)Win32.GetWindowLong(this.consoleProcess.MainWindowHandle, Win32.GWL_EXSTYLE);
 			exStyle &= ~(Win32.WS_EX_APPWINDOW);
 			exStyle |= Win32.WS_EX_TOOLWINDOW;
+
+			if (config.ConsoleRemoveBorder)
+			{
+				style &= ~(Win32.WS_CAPTION | Win32.WS_THICKFRAME | Win32.WS_MINIMIZE | Win32.WS_MAXIMIZE | Win32.WS_SYSMENU);
+				exStyle &= ~(Win32.WS_EX_DLGMODALFRAME | Win32.WS_EX_CLIENTEDGE | Win32.WS_EX_STATICEDGE);
+			}
 
 			Win32.ShowWindow(this.consoleProcess.MainWindowHandle, Win32.SW_HIDE);
 			Win32.SetWindowLong(this.consoleProcess.MainWindowHandle, Win32.GWL_STYLE, (int)style);
@@ -117,7 +123,7 @@ namespace WinQuakeCon
 
 		private bool IsConsoleVisible()
 		{
-			return Win32.IsWindowVisible(this.consoleProcess.MainWindowHandle);
+			return Win32.IsWindowVisible(this.consoleProcess.MainWindowHandle) && Win32.GetForegroundWindow() == this.consoleProcess.MainWindowHandle;
 		}
 
 		private void AnimateConsoleProc(object state)
@@ -128,7 +134,7 @@ namespace WinQuakeCon
 
 			if (direction > 0)
 			{
-				Win32.ShowWindow(this.consoleProcess.MainWindowHandle, Win32.SW_SHOW);
+				Win32.SetWindowPos(this.consoleProcess.MainWindowHandle, IntPtr.Zero, this.config.ConsoleHiddenX, this.config.ConsoleHiddenY, this.config.ConsoleWidth, this.config.ConsoleHeight, Win32.SWP_SHOWWINDOW);
 
 				while (rect.X < this.config.ConsoleVisibleX || rect.Y < this.config.ConsoleVisibleY)
 				{
