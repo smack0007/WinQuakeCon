@@ -13,6 +13,30 @@ namespace WinQuakeCon
 			set;
 		}
 
+		public bool HotKeyAlt
+		{
+			get;
+			set;
+		}
+
+		public bool HotKeyCtrl
+		{
+			get;
+			set;
+		}
+
+		public bool HotKeyShift
+		{
+			get;
+			set;
+		}
+
+		public bool HotKeyWin
+		{
+			get;
+			set;
+		}
+
 		public string Console
 		{
 			get;
@@ -43,6 +67,10 @@ namespace WinQuakeCon
 
 			XDocument document = XDocument.Load(fileName);
 			config.HotKeyCode = int.Parse(document.Root.Element("HotKeyCode").Value);
+			config.HotKeyAlt = document.Root.Element("HotKeyAlt").Value.ToUpper() == "TRUE" ? true : false;
+			config.HotKeyCtrl = document.Root.Element("HotKeyCtrl").Value.ToUpper() == "TRUE" ? true : false;
+			config.HotKeyShift = document.Root.Element("HotKeyShift").Value.ToUpper() == "TRUE" ? true : false;
+			config.HotKeyWin = document.Root.Element("HotKeyWin").Value.ToUpper() == "TRUE" ? true : false;
 			config.Console = document.Root.Element("Console").Value;
 			config.WorkingDirectory = document.Root.Element("WorkingDirectory").Value;
 			config.Animate = document.Root.Element("Animate").Value.ToUpper() == "TRUE" ? true : false;

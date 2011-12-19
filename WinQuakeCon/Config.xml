@@ -1,6 +1,10 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <WinQuakeConConfig>
 	<HotKeyCode>192</HotKeyCode>
+	<HotKeyAlt>false</HotKeyAlt>
+	<HotKeyCtrl>false</HotKeyCtrl>
+	<HotKeyShift>false</HotKeyShift>
+	<HotKeyWin>true</HotKeyWin>
 	<Console>cmd.exe</Console>
 	<WorkingDirectory>C:\</WorkingDirectory>
 	<Animate>true</Animate>

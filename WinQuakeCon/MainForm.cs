@@ -47,7 +47,21 @@ namespace WinQuakeCon
 
 		public void Initialize()
 		{
-			Win32.RegisterHotKey(this.Handle, 0, 0, (uint)this.config.HotKeyCode);
+			uint fsModifiers = 0;
+
+			if (this.config.HotKeyAlt)
+				fsModifiers |= Win32.MOD_ALT;
+			
+			if (this.config.HotKeyCtrl)
+				fsModifiers |= Win32.MOD_CONTROL;
+
+			if (this.config.HotKeyShift)
+				fsModifiers |= Win32.MOD_SHIFT;
+
+			if (this.config.HotKeyWin)
+				fsModifiers |= Win32.MOD_WIN;
+
+			Win32.RegisterHotKey(this.Handle, 0, fsModifiers, (uint)this.config.HotKeyCode);
 		}
 		
 		public void Shutdown()
