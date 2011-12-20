@@ -119,24 +119,31 @@ namespace WinQuakeCon
 
 			// TODO: Validate config file.
 
-			XDocument document = XDocument.Load(fileName);
-			config.HotKeyCode = int.Parse(document.Root.Element("HotKeyCode").Value);
-			config.HotKeyAlt = document.Root.Element("HotKeyAlt").Value.ToUpper() == "TRUE" ? true : false;
-			config.HotKeyCtrl = document.Root.Element("HotKeyCtrl").Value.ToUpper() == "TRUE" ? true : false;
-			config.HotKeyShift = document.Root.Element("HotKeyShift").Value.ToUpper() == "TRUE" ? true : false;
-			config.HotKeyWin = document.Root.Element("HotKeyWin").Value.ToUpper() == "TRUE" ? true : false;
-			config.Console = document.Root.Element("Console").Value;
-			config.ConsoleRemoveBorder = document.Root.Element("ConsoleRemoveBorder").Value.ToUpper() == "TRUE" ? true : false;
-			config.ConsoleWidth = int.Parse(document.Root.Element("ConsoleWidth").Value);
-			config.ConsoleHeight = int.Parse(document.Root.Element("ConsoleHeight").Value);
-			config.ConsoleHiddenX = int.Parse(document.Root.Element("ConsoleHiddenX").Value);
-			config.ConsoleHiddenY = int.Parse(document.Root.Element("ConsoleHiddenY").Value);
-			config.ConsoleVisibleX = int.Parse(document.Root.Element("ConsoleVisibleX").Value);
-			config.ConsoleVisibleY = int.Parse(document.Root.Element("ConsoleVisibleY").Value);
-			config.WorkingDirectory = document.Root.Element("WorkingDirectory").Value;
-			config.Animate = document.Root.Element("Animate").Value.ToUpper() == "TRUE" ? true : false;
-			config.AnimateSpeedX = int.Parse(document.Root.Element("AnimateSpeedX").Value);
-			config.AnimateSpeedY = int.Parse(document.Root.Element("AnimateSpeedY").Value);
+			try
+			{
+				XDocument document = XDocument.Load(fileName);
+				config.HotKeyCode = int.Parse(document.Root.Element("HotKeyCode").Value);
+				config.HotKeyAlt = document.Root.Element("HotKeyAlt").Value.ToUpper() == "TRUE" ? true : false;
+				config.HotKeyCtrl = document.Root.Element("HotKeyCtrl").Value.ToUpper() == "TRUE" ? true : false;
+				config.HotKeyShift = document.Root.Element("HotKeyShift").Value.ToUpper() == "TRUE" ? true : false;
+				config.HotKeyWin = document.Root.Element("HotKeyWin").Value.ToUpper() == "TRUE" ? true : false;
+				config.Console = document.Root.Element("Console").Value;
+				config.ConsoleRemoveBorder = document.Root.Element("ConsoleRemoveBorder").Value.ToUpper() == "TRUE" ? true : false;
+				config.ConsoleWidth = int.Parse(document.Root.Element("ConsoleWidth").Value);
+				config.ConsoleHeight = int.Parse(document.Root.Element("ConsoleHeight").Value);
+				config.ConsoleHiddenX = int.Parse(document.Root.Element("ConsoleHiddenX").Value);
+				config.ConsoleHiddenY = int.Parse(document.Root.Element("ConsoleHiddenY").Value);
+				config.ConsoleVisibleX = int.Parse(document.Root.Element("ConsoleVisibleX").Value);
+				config.ConsoleVisibleY = int.Parse(document.Root.Element("ConsoleVisibleY").Value);
+				config.WorkingDirectory = document.Root.Element("WorkingDirectory").Value;
+				config.Animate = document.Root.Element("Animate").Value.ToUpper() == "TRUE" ? true : false;
+				config.AnimateSpeedX = int.Parse(document.Root.Element("AnimateSpeedX").Value);
+				config.AnimateSpeedY = int.Parse(document.Root.Element("AnimateSpeedY").Value);
+			}
+			catch (Exception)
+			{
+				return null;
+			}
 
 			if (config.AnimateSpeedX <= 0)
 				config.AnimateSpeedX = 1;

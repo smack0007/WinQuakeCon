@@ -36,6 +36,7 @@ namespace WinQuakeCon
 
 			ContextMenu menu = new ContextMenu();
 			menu.MenuItems.Add("Toggle Console", this.TrayIcon_ToggleConsole);
+			menu.MenuItems.Add("Reload Config", this.TrayIcon_ReloadConfig);
 			menu.MenuItems.Add("Exit", this.TrayIcon_Exit);
 
 			this.trayIcon.ContextMenu = menu;
@@ -72,6 +73,19 @@ namespace WinQuakeCon
 		private void TrayIcon_ToggleConsole(object sender, EventArgs e)
 		{
 			this.ToggleConsole();
+		}
+
+		private void TrayIcon_ReloadConfig(object sender, EventArgs e)
+		{
+			Config config = Config.Load("Config.xml");
+
+			if (config == null)
+			{
+				MessageBox.Show(this, "Failed to load Config.xml.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+				return;
+			}
+
+			this.config = config;
 		}
 
 		private void TrayIcon_Exit(object sender, EventArgs e)

@@ -16,6 +16,12 @@ namespace WinQuakeCon
 		{
 			Config config = Config.Load("Config.xml");
 
+			if (config == null)
+			{
+				MessageBox.Show("Failed to load Config.xml", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+				return;
+			}
+
 			Application.EnableVisualStyles();
 			Application.SetCompatibleTextRenderingDefault(false);
 
