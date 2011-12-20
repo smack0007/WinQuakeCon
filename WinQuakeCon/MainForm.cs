@@ -21,9 +21,7 @@ namespace WinQuakeCon
 		public MainForm(Config config)
 		{
 			if (config == null)
-			{
 				throw new ArgumentNullException("config");
-			}
 
 			this.config = config;
 
