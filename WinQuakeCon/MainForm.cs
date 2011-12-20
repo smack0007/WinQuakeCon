@@ -93,6 +93,24 @@ namespace WinQuakeCon
 			Application.Exit();
 		}
 
+		private Screen GetScreen()
+		{
+			if (this.config.ConsoleScreen >= Screen.AllScreens.Length)
+			{
+				MessageBox.Show(this, "Invalid screen index in ConsoleScreen.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+				Application.Exit();
+				return null;
+			}
+
+			return Screen.AllScreens[this.config.ConsoleScreen];
+		}
+
+		private void SetConsolePosition(int x, int y, bool showConsole)
+		{
+			Screen screen = this.GetScreen();
+			Win32.SetWindowPos(this.consoleProcess.MainWindowHandle, IntPtr.Zero, screen.WorkingArea.X + x, screen.WorkingArea.Y + y, this.config.ConsoleWidth, this.config.ConsoleHeight, showConsole ? Win32.SWP_SHOWWINDOW : Win32.SWP_HIDEWINDOW);
+		}
+
 		private void StartConsoleProcess()
 		{
 			ProcessStartInfo startInfo = new ProcessStartInfo()
@@ -122,15 +140,17 @@ namespace WinQuakeCon
 			Win32.ShowWindow(this.consoleProcess.MainWindowHandle, Win32.SW_HIDE);
 			Win32.SetWindowLong(this.consoleProcess.MainWindowHandle, Win32.GWL_STYLE, (int)style);
 			Win32.SetWindowLong(this.consoleProcess.MainWindowHandle, Win32.GWL_EXSTYLE, (int)exStyle);
-			
-			Win32.SetWindowPos(this.consoleProcess.MainWindowHandle, IntPtr.Zero, this.config.ConsoleHiddenX, this.config.ConsoleHiddenY, this.config.ConsoleWidth, this.config.ConsoleHeight, Win32.SWP_HIDEWINDOW);
+
+			this.SetConsolePosition(this.config.ConsoleHiddenX, this.config.ConsoleHiddenY, false);
 		}
 
 		private Rectangle GetConsoleRectangle()
 		{
+			Screen screen = this.GetScreen();
+
 			Win32.RECT rect = new Win32.RECT();
 			Win32.GetWindowRect(this.consoleProcess.MainWindowHandle, out rect);
-			return new Rectangle(rect.Left, rect.Top, rect.Right - rect.Top, rect.Bottom - rect.Top);
+			return new Rectangle(rect.Left - screen.WorkingArea.X, rect.Top - screen.WorkingArea.Y, rect.Right - rect.Top, rect.Bottom - rect.Top);
 		}
 
 		private bool IsConsoleVisible()
@@ -146,7 +166,7 @@ namespace WinQuakeCon
 
 			if (direction > 0)
 			{
-				Win32.SetWindowPos(this.consoleProcess.MainWindowHandle, IntPtr.Zero, this.config.ConsoleHiddenX, this.config.ConsoleHiddenY, this.config.ConsoleWidth, this.config.ConsoleHeight, Win32.SWP_SHOWWINDOW);
+				this.SetConsolePosition(this.config.ConsoleHiddenX, this.config.ConsoleHiddenY, true);
 
 				while (rect.X < this.config.ConsoleVisibleX || rect.Y < this.config.ConsoleVisibleY)
 				{
@@ -159,12 +179,12 @@ namespace WinQuakeCon
 					if (rect.Y > this.config.ConsoleVisibleY)
 						rect.Y = this.config.ConsoleVisibleY;
 
-					Win32.SetWindowPos(this.consoleProcess.MainWindowHandle, IntPtr.Zero, rect.X, rect.Y, this.config.ConsoleWidth, this.config.ConsoleHeight, Win32.SWP_SHOWWINDOW);
+					this.SetConsolePosition(rect.X, rect.Y, true);
 
 					Thread.Sleep(10);
 				}
 
-				Win32.SetWindowPos(this.consoleProcess.MainWindowHandle, IntPtr.Zero, this.config.ConsoleVisibleX, this.config.ConsoleVisibleY, this.config.ConsoleWidth, this.config.ConsoleHeight, Win32.SWP_SHOWWINDOW);
+				this.SetConsolePosition(this.config.ConsoleVisibleX, this.config.ConsoleVisibleY, true);
 				Win32.SetForegroundWindow(this.consoleProcess.MainWindowHandle);
 			}
 			else
@@ -180,7 +200,7 @@ namespace WinQuakeCon
 					if (rect.Y < this.config.ConsoleHiddenY)
 						rect.Y = this.config.ConsoleHiddenY;
 
-					Win32.SetWindowPos(this.consoleProcess.MainWindowHandle, IntPtr.Zero, rect.X, rect.Y, this.config.ConsoleWidth, this.config.ConsoleHeight, Win32.SWP_SHOWWINDOW);
+					this.SetConsolePosition(rect.X, rect.Y, true);
 
 					Thread.Sleep(10);
 				}
@@ -204,7 +224,7 @@ namespace WinQuakeCon
 				else
 				{
 					Win32.ShowWindow(this.consoleProcess.MainWindowHandle, Win32.SW_SHOW);
-					Win32.SetWindowPos(this.consoleProcess.MainWindowHandle, IntPtr.Zero, this.config.ConsoleVisibleX, this.config.ConsoleVisibleY, this.config.ConsoleWidth, this.config.ConsoleHeight, Win32.SWP_SHOWWINDOW);
+					this.SetConsolePosition(this.config.ConsoleVisibleX, this.config.ConsoleVisibleY, true);
 					Win32.SetForegroundWindow(this.consoleProcess.MainWindowHandle);
 				}
 			}

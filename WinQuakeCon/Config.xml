@@ -9,6 +9,7 @@
 	<ConsoleRemoveBorder>false</ConsoleRemoveBorder>
 	<ConsoleWidth>1024</ConsoleWidth>
 	<ConsoleHeight>384</ConsoleHeight>
+	<ConsoleScreen>0</ConsoleScreen>
 	<ConsoleHiddenX>0</ConsoleHiddenX>
 	<ConsoleHiddenY>-384</ConsoleHiddenY>
 	<ConsoleVisibleX>0</ConsoleVisibleX>

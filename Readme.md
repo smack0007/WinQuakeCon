@@ -21,6 +21,7 @@ Configuration
 * __ConsoleRemoveBorder__ - If set to "true", the border around console program will be removed. This feature does not work well with cmd.exe and PowerShell.
 * __ConsoleWidth__ - The desired width of your console. Cmd.exe and PowerShell may not resize and you may need to set the width manually.
 * __ConsoleHeight__ - The desired height of your console. Cmd.exe and PowerShell may not resize and you may need to set the height manually.
+* __ConsoleScreen__ - The index of the screen to display the console on.
 * __ConsoleHiddenX__ - The X position of your console while it is hidden. You can change this value in order to change animation when toggling.
 * __ConsoleHiddenY__ - The Y position of your console while it is hidden. You can change this value in order to change animation when toggling.
 * __ConsoleVisibleX__ - The X position of your console while it is visible.

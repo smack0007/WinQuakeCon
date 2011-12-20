@@ -61,6 +61,12 @@ namespace WinQuakeCon
 			set;
 		}
 
+		public int ConsoleScreen
+		{
+			get;
+			set;
+		}
+
 		public int ConsoleHiddenX
 		{
 			get;
@@ -131,6 +137,7 @@ namespace WinQuakeCon
 				config.ConsoleRemoveBorder = document.Root.Element("ConsoleRemoveBorder").Value.ToUpper() == "TRUE" ? true : false;
 				config.ConsoleWidth = int.Parse(document.Root.Element("ConsoleWidth").Value);
 				config.ConsoleHeight = int.Parse(document.Root.Element("ConsoleHeight").Value);
+				config.ConsoleScreen = int.Parse(document.Root.Element("ConsoleScreen").Value);
 				config.ConsoleHiddenX = int.Parse(document.Root.Element("ConsoleHiddenX").Value);
 				config.ConsoleHiddenY = int.Parse(document.Root.Element("ConsoleHiddenY").Value);
 				config.ConsoleVisibleX = int.Parse(document.Root.Element("ConsoleVisibleX").Value);
