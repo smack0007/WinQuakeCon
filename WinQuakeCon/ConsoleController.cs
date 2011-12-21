@@ -220,7 +220,8 @@ namespace WinQuakeCon
 			if (direction > 0)
 			{
 				this.SetConsolePosition(this.config.ConsoleHiddenX, this.config.ConsoleHiddenY, true);
-
+				Win32.SetForegroundWindow(this.consoleProcess.MainWindowHandle);
+				
 				Rectangle rect = this.GetConsoleRectangle();
 
 				while (rect.X < this.config.ConsoleVisibleX || rect.Y < this.config.ConsoleVisibleY)
@@ -240,7 +241,6 @@ namespace WinQuakeCon
 				}
 
 				this.SetConsolePosition(this.config.ConsoleVisibleX, this.config.ConsoleVisibleY, true);
-				Win32.SetForegroundWindow(this.consoleProcess.MainWindowHandle);
 			}
 			else
 			{
