@@ -8,7 +8,10 @@ using Timer = System.Threading.Timer;
 
 namespace WinQuakeCon
 {
-	public class MainForm : Form
+	/// <summary>
+	/// Controls the console.
+	/// </summary>
+	public class ConsoleController : Form
 	{
 		Config config;
 
@@ -18,7 +21,11 @@ namespace WinQuakeCon
 		
 		IntPtr oldForeground;
 
-		public MainForm(Config config)
+		/// <summary>
+		/// Constructor.
+		/// </summary>
+		/// <param name="config"></param>
+		public ConsoleController(Config config)
 		{
 			if (config == null)
 				throw new ArgumentNullException("config");
@@ -43,6 +50,9 @@ namespace WinQuakeCon
 			this.trayIcon.DoubleClick += this.TrayIcon_ToggleConsole;
 		}
 
+		/// <summary>
+		/// Activates the global hotkey.
+		/// </summary>
 		public void Initialize()
 		{
 			uint fsModifiers = 0;
@@ -62,6 +72,9 @@ namespace WinQuakeCon
 			Win32.RegisterHotKey(this.Handle, 0, fsModifiers, (uint)this.config.HotKeyCode);
 		}
 		
+		/// <summary>
+		/// Deactivates the global hotkey and kills the console process if it is still running.
+		/// </summary>
 		public void Shutdown()
 		{
 			Win32.UnregisterHotKey(this.Handle, 0);
@@ -70,11 +83,21 @@ namespace WinQuakeCon
 				this.consoleProcess.Kill();
 		}
 
+		/// <summary>
+		/// Called when the "Toggle Console" tray icon menu item is selected.
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="e"></param>
 		private void TrayIcon_ToggleConsole(object sender, EventArgs e)
 		{
 			this.ToggleConsole();
 		}
 
+		/// <summary>
+		/// Called when the "Reload Config" tray icon menu item is selected.
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="e"></param>
 		private void TrayIcon_ReloadConfig(object sender, EventArgs e)
 		{
 			Config config = Config.Load("Config.xml");
@@ -88,11 +111,20 @@ namespace WinQuakeCon
 			this.config = config;
 		}
 
+		/// <summary>
+		/// Called when the "Exit" tray icon menu item is selected.
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="e"></param>
 		private void TrayIcon_Exit(object sender, EventArgs e)
 		{
 			Application.Exit();
 		}
 
+		/// <summary>
+		/// Gets the screen selected by the config option "ConsoleScreen".
+		/// </summary>
+		/// <returns></returns>
 		private Screen GetScreen()
 		{
 			if (this.config.ConsoleScreen >= Screen.AllScreens.Length)
@@ -105,12 +137,21 @@ namespace WinQuakeCon
 			return Screen.AllScreens[this.config.ConsoleScreen];
 		}
 
+		/// <summary>
+		/// Sets the position of the console relative to the display screen.
+		/// </summary>
+		/// <param name="x"></param>
+		/// <param name="y"></param>
+		/// <param name="showConsole"></param>
 		private void SetConsolePosition(int x, int y, bool showConsole)
 		{
 			Screen screen = this.GetScreen();
 			Win32.SetWindowPos(this.consoleProcess.MainWindowHandle, IntPtr.Zero, screen.WorkingArea.X + x, screen.WorkingArea.Y + y, this.config.ConsoleWidth, this.config.ConsoleHeight, showConsole ? Win32.SWP_SHOWWINDOW : Win32.SWP_HIDEWINDOW);
 		}
 
+		/// <summary>
+		/// Starts an instance of the console process.
+		/// </summary>
 		private void StartConsoleProcess()
 		{
 			ProcessStartInfo startInfo = new ProcessStartInfo()
@@ -144,29 +185,43 @@ namespace WinQuakeCon
 			this.SetConsolePosition(this.config.ConsoleHiddenX, this.config.ConsoleHiddenY, false);
 		}
 
+		/// <summary>
+		/// Gets the Rectangle of the console window.
+		/// </summary>
+		/// <returns></returns>
 		private Rectangle GetConsoleRectangle()
 		{
 			Screen screen = this.GetScreen();
 
 			Win32.RECT rect = new Win32.RECT();
 			Win32.GetWindowRect(this.consoleProcess.MainWindowHandle, out rect);
+
+			// Subtract screen position as SetConsolePosition is relative to the selected screen.
 			return new Rectangle(rect.Left - screen.WorkingArea.X, rect.Top - screen.WorkingArea.Y, rect.Right - rect.Top, rect.Bottom - rect.Top);
 		}
 
+		/// <summary>
+		/// Indicates whether or not the console window is in visible or should be treated as if it is not.
+		/// </summary>
+		/// <returns></returns>
 		private bool IsConsoleVisible()
 		{
 			return Win32.IsWindowVisible(this.consoleProcess.MainWindowHandle) && Win32.GetForegroundWindow() == this.consoleProcess.MainWindowHandle;
 		}
 
+		/// <summary>
+		/// Animation procedure.
+		/// </summary>
+		/// <param name="state"></param>
 		private void AnimateConsoleProc(object state)
 		{
 			int direction = (int)state;
-
-			Rectangle rect = this.GetConsoleRectangle();
-
+						
 			if (direction > 0)
 			{
 				this.SetConsolePosition(this.config.ConsoleHiddenX, this.config.ConsoleHiddenY, true);
+
+				Rectangle rect = this.GetConsoleRectangle();
 
 				while (rect.X < this.config.ConsoleVisibleX || rect.Y < this.config.ConsoleVisibleY)
 				{
@@ -189,6 +244,8 @@ namespace WinQuakeCon
 			}
 			else
 			{
+				Rectangle rect = this.GetConsoleRectangle();
+
 				while (rect.X > this.config.ConsoleHiddenX || rect.Y > this.config.ConsoleHiddenY)
 				{
 					rect.X -= this.config.AnimateSpeedX;
@@ -210,6 +267,9 @@ namespace WinQuakeCon
 			}
 		}
 
+		/// <summary>
+		/// Toggles the console window in or out of focus.
+		/// </summary>
 		private void ToggleConsole()
 		{
 			if(this.consoleProcess == null || this.consoleProcess.HasExited)
@@ -240,6 +300,10 @@ namespace WinQuakeCon
 			}
 		}
 
+		/// <summary>
+		/// Listens for the hotkey.
+		/// </summary>
+		/// <param name="m"></param>
 		protected override void WndProc(ref Message m)
 		{
 			switch(m.Msg)

@@ -25,7 +25,7 @@ namespace WinQuakeCon
 			Application.EnableVisualStyles();
 			Application.SetCompatibleTextRenderingDefault(false);
 
-			MainForm mainForm = new MainForm(config);
+			ConsoleController mainForm = new ConsoleController(config);
 			mainForm.CreateControl();
 			mainForm.Initialize();
 			Application.Run();
