@@ -53,7 +53,7 @@ namespace WinQuakeCon
 		/// <summary>
 		/// Activates the global hotkey.
 		/// </summary>
-		public void Initialize()
+		public bool Initialize()
 		{
 			uint fsModifiers = 0;
 
@@ -69,7 +69,13 @@ namespace WinQuakeCon
 			if (this.config.HotKeyWin)
 				fsModifiers |= Win32.MOD_WIN;
 
-			Win32.RegisterHotKey(this.Handle, 0, fsModifiers, (uint)this.config.HotKeyCode);
+            if (!Win32.RegisterHotKey(this.Handle, 0, fsModifiers, (uint)this.config.HotKeyCode))
+            {
+                MessageBox.Show("Failed to register hotkey.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return false;
+            }
+
+            return true;
 		}
 		
 		/// <summary>

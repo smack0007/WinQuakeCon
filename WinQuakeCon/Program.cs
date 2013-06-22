@@ -27,9 +27,12 @@ namespace WinQuakeCon
 
 			ConsoleController mainForm = new ConsoleController(config);
 			mainForm.CreateControl();
-			mainForm.Initialize();
-			Application.Run();
-			mainForm.Shutdown();
+            
+            if (mainForm.Initialize())
+            {
+                Application.Run();
+                mainForm.Shutdown();
+            }
 		}
 	}
 }
